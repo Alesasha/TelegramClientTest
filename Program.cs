@@ -10,7 +10,6 @@ namespace TelegramClientTest
     class Program
     {
 
-        int ver = 2;
         static string Config1(string what)
         {
             switch (what)
