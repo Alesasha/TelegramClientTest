@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  telegramclienttest:
+    image: ${DOCKER_REGISTRY-}telegramclienttest
+    build:
+      context: .
+      dockerfile: Dockerfile

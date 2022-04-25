@@ -10,6 +10,27 @@ namespace TelegramClientTest
     class Program
     {
 
+        class userConfig
+        {
+            string _phone;
+
+            public userConfig(string phone) {_phone = phone;}
+            public string Config(string what)
+            {
+                switch (what)
+                {
+                    case "api_id": return "19696018";
+                    case "api_hash": return "7e74cd6006ddef7ed43187d3ac564b40";
+                    case "phone_number": return _phone;
+                    case "verification_code": Console.Write("Code: "); return Console.ReadLine();
+                    case "first_name": return "Sasha";      // if sign-up is required
+                    case "last_name": return "Ivanov";        // if sign-up is required
+                    case "password": return "0000000";     // if user has enabled 2FA
+                    case "session_pathname": return $"session_{_phone}";
+                    default: return null;                  // let WTelegramClient decide the default config
+                }
+            }
+        }
         static string Config1(string what)
         {
             switch (what)
@@ -58,11 +79,15 @@ namespace TelegramClientTest
 
         static async Task Main(string[] _)
         {
-            using var client1 = new WTelegram.Client(Config1);
+            //Console.Write("Ready to exit: ");
+            //Console.ReadLine();
+            //return;
+
+            using var client1 = new WTelegram.Client(new userConfig("79164649009").Config);
             var my1 = await client1.LoginUserIfNeeded();
-            using var client2 = new WTelegram.Client(Config2);
+            using var client2 = new WTelegram.Client(new userConfig("79015396209").Config);
             var my2 = await client2.LoginUserIfNeeded();
-            using var client3 = new WTelegram.Client(Config3);
+            using var client3 = new WTelegram.Client(new userConfig("79255087106").Config);
             var my3 = await client3.LoginUserIfNeeded();
 
             Console.WriteLine($"We are logged-in as {my1.username ?? my1.first_name + " " + my1.last_name} (id {my1.id})");
@@ -96,22 +121,30 @@ namespace TelegramClientTest
             var u2 = my2.ToInputPeer();
             var u3 = my3.ToInputPeer();
 
-            
+            var cont2 = await client2.Contacts_GetContacts();
+            var UserID = cont2.users.Where(x => x.Value.phone == "79153648070").ToList().FirstOrDefault().Key;
+
+            var u4 = cont2.users[UserID].ToInputPeer();
+
             var uid = my2.id;
             var ah= my2.access_hash;
             var c2 = new InputUser(uid, ah);
 
-            var cont2 = await client2.Contacts_GetContacts();
-            var GG = cont2.users.Where(x => x.Value.phone == "79252623619");
+            //var cont1 = await client1.Contacts_GetContacts();
+            
+            await client2.SendMessageAsync(cont2.users[UserID].ToInputPeer(), "Don't be afraid! I'm kind of a bot-Client-2 -> Client-4");
+
+            //await client1.SendMessageAsync(u3, "Don't worry! I'm kind of a bot-Client-1 to Client-3");
 
             //key = 1144464374  GG
             //Key = 977062115   Iosif
+            //Key = 992990091   Anna_A
 
             //var newC = await client2.Contacts_ImportContacts(new[] { new InputPhoneContact() { phone = "79262001705" } });
 
             //var dhc = (Messages_DhConfig) await client3.Messages_GetDhConfig(1,10);
             //var gah_gen = SHA256.Create();
-            
+
             //var g_a = dhc.p;
 
             //var g_a_hash = gah_gen.ComputeHash(g_a);
@@ -120,7 +153,14 @@ namespace TelegramClientTest
             //await client3.Phone_RequestCall(c2, 11, g_a_hash, php);
 
             //await client2.SendMessageAsync(cont2.users[977062115].ToInputPeer(), "Привет, Йося. Это Телеграмм-бот)");
-            //await client3.SendMessageAsync(u2, "Hello, world! I'm a Client-3-2");
+
+
+            //await client3.SendMessageAsync(u2, "Hello, world! I'm a Client-3 -> Client-2");
+            //await client3.SendMessageAsync(u1, "Hi, world! I'm a Client-3 to Client-1");
+            //await client1.SendMessageAsync(u3, "Don't worry! I'm kind of a bot-Client-1 to Client-3");
+            //await client2.SendMessageAsync(u3, "Don't be afraid! I'm kind of a bot-Client-2 -> Client-3");
+
+            return;
 
             Console.Write("Type a chat ID to send a message: ");
             long chatId = long.Parse(Console.ReadLine());
